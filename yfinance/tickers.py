@@ -23,7 +23,7 @@ from __future__ import print_function
 
 from . import Ticker, multi
 from collections import namedtuple as _namedtuple
-
+from yliveticker import YLiveTicker
 
 def genTickers(tickers):
     tickers = tickers if isinstance(
@@ -95,3 +95,15 @@ class Tickers():
             data.sort_index(level=0, axis=1, inplace=True)
 
         return data
+
+    def live(self,
+             on_ticker=None,
+             on_error=None,
+             on_close=None,
+             enable_socket_trace=False):
+
+        YLiveTicker(ticker_names=self.symbols,
+                    on_ticker=on_ticker,
+                    on_close=on_close,
+                    on_error=on_error,
+                    enable_socket_trace=enable_socket_trace)

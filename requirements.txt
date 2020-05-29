@@ -2,3 +2,4 @@ pandas>=0.24
 numpy>=1.15
 requests>=2.21
 multitasking>=0.0.7
+yliveticker>=0.2.5

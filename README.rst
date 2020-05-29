@@ -210,6 +210,25 @@ I've also added some options to make life easier :)
             proxy = None
         )
 
+Listening to the live stream of tickers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can receive a live stream from the market. Put your code into
+``on_new_data(data)`` function:
+
+.. code:: python
+
+    import yfinance as yf
+
+    # this function is called when new data is available
+    def on_new_data(data):
+        print('received new data')
+        print(data)
+
+    yf.Tickers("BTC=X GBPUSD=X AAPL").live(on_ticker=on_new_data)
+
+If you don't get messages after the connection was open, check if you are
+within trading hours of the stock exchange and/or symbols are correct.
 
 ``pandas_datareader`` override
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
