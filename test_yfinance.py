@@ -37,6 +37,7 @@ class TestTicker:
             ticker.major_holders
             ticker.institutional_holders
             ticker.mutualfund_holders
+            ticker.time_series_balance
 
     def test_holders(self):
         for ticker in tickers:

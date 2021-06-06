@@ -166,6 +166,10 @@ class Ticker(TickerBase):
         return self.get_balancesheet()
 
     @property
+    def time_series_balance(self):
+        return self.get_time_series_balance()
+
+    @property
     def quarterly_balance_sheet(self):
         return self.get_balancesheet(freq='quarterly')
 

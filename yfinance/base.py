@@ -57,6 +57,7 @@ class TickerBase():
         self._institutional_holders = None
         self._mutualfund_holders = None
         self._isin = None
+        self._time_series_balance = None
 
         self._calendar = None
         self._expirations = {}
@@ -393,7 +394,11 @@ class TickerBase():
             pass
 
         # get fundamentals
-        data = utils.get_json(ticker_url+'/financials', proxy, self.session)
+        summary_data = utils.get_json(
+            ticker_url+'/financials',
+            proxy, self.session,
+            key='QuoteSummaryStore')
+
 
         # generic patterns
         for key in (
@@ -402,18 +407,41 @@ class TickerBase():
             (self._financials, 'incomeStatement', 'incomeStatementHistory')
         ):
             item = key[1] + 'History'
-            if isinstance(data.get(item), dict):
+            if isinstance(summary_data.get(item), dict):
                 try:
-                    key[0]['yearly'] = cleanup(data[item][key[2]])
+                    key[0]['yearly'] = cleanup(summary_data[item][key[2]])
                 except Exception as e:
                     pass
 
             item = key[1]+'HistoryQuarterly'
-            if isinstance(data.get(item), dict):
+            if isinstance(summary_data.get(item), dict):
                 try:
-                    key[0]['quarterly'] = cleanup(data[item][key[2]])
+                    key[0]['quarterly'] = cleanup(summary_data[item][key[2]])
                 except Exception as e:
                     pass
+
+        time_series_data = utils.get_json(
+            ticker_url+'/balance-sheet',
+            proxy, self.session,
+            key='QuoteTimeSeriesStore')
+
+        series = []
+        time_series = time_series_data.get('timeSeries')
+        if time_series:
+            for k in sorted(time_series.keys()):
+                if k == 'timestamp':
+                    continue
+                name = utils.camel2title([k])[0]
+
+                series.append(_pd.Series(
+                    name=name,
+                    data={
+                        _pd.to_datetime(d['asOfDate']): d['reportedValue']
+                        for d in time_series[k] or ()
+                        if d is not None
+                    },
+                    dtype='float64'))
+            self._time_series_balance = _pd.concat(series, axis=1).transpose()
 
         # earnings
         if isinstance(data.get('earnings'), dict):
@@ -493,6 +521,13 @@ class TickerBase():
             dict_data = data.to_dict()
             dict_data['financialCurrency'] = 'USD' if 'financialCurrency' not in self._earnings else self._earnings['financialCurrency']
             return dict_data
+        return data
+
+    def get_time_series_balance(self, proxy=None, as_dict=False):
+        self._get_fundamentals(proxy=proxy)
+        data = self._time_series_balance
+        if as_dict:
+            return data.to_dict()
         return data
 
     def get_financials(self, proxy=None, as_dict=False, freq="yearly"):
