@@ -26,6 +26,7 @@ import datetime as _datetime
 import requests as _requests
 import pandas as _pd
 import numpy as _np
+import http as _http
 
 try:
     from urllib.parse import quote as urlencode
@@ -159,6 +160,8 @@ class TickerBase():
             raise RuntimeError("*** YAHOO! FINANCE IS CURRENTLY DOWN! ***\n"
                                "Our engineers are working quickly to resolve "
                                "the issue. Thank you for your patience.")
+        if data.status_code == _http.HTTPStatus.FORBIDDEN:
+            raise RuntimeError("*** YAHOO! FINANCE FORBID YOUR REQUEST! ***")
         data = data.json()
 
         # Work with errors
