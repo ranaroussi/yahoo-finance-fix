@@ -159,12 +159,21 @@ class TickerBase():
             raise RuntimeError("*** YAHOO! FINANCE IS CURRENTLY DOWN! ***\n"
                                "Our engineers are working quickly to resolve "
                                "the issue. Thank you for your patience.")
-        data = data.json()
 
         # Work with errors
         debug_mode = True
         if "debug" in kwargs and isinstance(kwargs["debug"], bool):
             debug_mode = kwargs["debug"]
+
+        try:
+            data = data.json()
+        except Exception:
+            err_msg = "Failed to read the json data for %s. [%s]" % (self.ticker, data.text)
+            shared._DFS[self.ticker] = utils.empty_df()
+            shared._ERRORS[self.ticker] = err_msg
+            if "many" not in kwargs and debug_mode:
+                print('- %s: %s' % (self.ticker, err_msg))
+            return shared._DFS[self.ticker]
 
         err_msg = "No data found for this date range, symbol may be delisted"
         if "chart" in data and data["chart"]["error"]:
