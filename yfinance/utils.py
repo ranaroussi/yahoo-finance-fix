@@ -51,19 +51,15 @@ def get_html(url, proxy=None, session=None):
 
 
 def get_json(url, proxy=None, session=None):
-
+    '''
+    get_json returns a python dictionary of the store detail for yahoo finance web pages.
+    '''
     session = session or _requests
     html = session.get(url=url, proxies=proxy, headers=user_agent_headers).text
 
-    if "QuoteSummaryStore" not in html:
-        html = session.get(url=url, proxies=proxy).text
-        if "QuoteSummaryStore" not in html:
-            return {}
-
     json_str = html.split('root.App.main =')[1].split(
         '(this)')[0].split(';\n}')[0].strip()
-    data = _json.loads(json_str)[
-        'context']['dispatcher']['stores']['QuoteSummaryStore']
+    data = _json.loads(json_str)
 
     # return data
     new_data = _json.dumps(data).replace('{}', 'null')
@@ -71,6 +67,66 @@ def get_json(url, proxy=None, session=None):
         r'\{[\'|\"]raw[\'|\"]:(.*?),(.*?)\}', r'\1', new_data)
 
     return _json.loads(new_data)
+
+def build_template(data):
+    '''
+    build_template returns the details required to rebuild any of the yahoo finance financial statements in the same order as the yahoo finance webpage. The function is built to be used on the "FinancialTemplateStore" json which appears in any one of the three yahoo finance webpages: "/financials", "/cash-flow" and "/balance-sheet".
+    
+    Returns:
+        - template_annual_order: The order that annual figures should be listed in.
+        - template_ttm_order: The order that TTM (Trailing Twelve Month) figures should be listed in.
+        - level_detail: The level of each individual line item. E.g. for the "/financials" webpage, "Total Revenue" is a level 0 item and is the summation of "Operating Revenue" and "Excise Taxes" which are level 1 items.
+   
+    '''
+    template_ttm_order = []   # Save the TTM (Trailing Twelve Months) ordering to an object.
+    template_annual_order = []    # Save the annual ordering to an object.
+    level_detail = []   #Record the level of each line item of the income statement ("Operating Revenue" and "Excise Taxes" sum to return "Total Revenue" we need to keep track of this)
+    for key in data['template']:    # Loop through the json to retreive the exact financial order whilst appending to the objects
+        template_ttm_order.append('trailing{}'.format(key['key']))
+        template_annual_order.append('annual{}'.format(key['key']))
+        level_detail.append(0)
+        if 'children' in key:
+            for child1 in key['children']:  # Level 1
+                template_ttm_order.append('trailing{}'.format(child1['key']))
+                template_annual_order.append('annual{}'.format(child1['key']))
+                level_detail.append(1)
+                if 'children' in child1:
+                    for child2 in child1['children']:   # Level 2
+                        template_ttm_order.append('trailing{}'.format(child2['key']))
+                        template_annual_order.append('annual{}'.format(child2['key']))
+                        level_detail.append(2)
+                        if 'children' in child2:
+                            for child3 in child2['children']:   # Level 3
+                                template_ttm_order.append('trailing{}'.format(child3['key']))
+                                template_annual_order.append('annual{}'.format(child3['key']))
+                                level_detail.append(3)
+    return template_ttm_order, template_annual_order, level_detail
+
+def retreive_financial_details(data):
+    '''
+    retreive_financial_details returns all of the available financial details under the "QuoteTimeSeriesStore" for any of the following three yahoo finance webpages: "/financials", "/cash-flow" and "/balance-sheet".
+
+    Returns:
+        - TTM_dicts: A dictionary full of all of the available Trailing Twelve Month figures, this can easily be converted to a pandas dataframe.
+        - Annual_dicts: A dictionary full of all of the available Annual figures, this can easily be converted to a pandas dataframe.
+    '''
+    TTM_dicts = []  # Save a dictionary object to store the TTM financials.
+    Annual_dicts = []   # Save a dictionary object to store the Annual financials.
+    for key in data['timeSeries']:  # Loop through the time series data to grab the key financial figures.
+        try:
+            if len(data['timeSeries'][key]) > 0:
+                time_series_dict = {}
+                time_series_dict['index'] = key
+                for each in data['timeSeries'][key]:    # Loop through the years
+                    time_series_dict[each['asOfDate']] = each['reportedValue']
+                    # time_series_dict["{}".format(each['asOfDate'])] = data['timeSeries'][key][each]['reportedValue']
+                if each['periodType'] == 'TTM':
+                    TTM_dicts.append(time_series_dict)
+                elif each['periodType'] == '12M':
+                    Annual_dicts.append(time_series_dict)
+        except Exception as e:
+            pass
+    return TTM_dicts, Annual_dicts
 
 
 def camel2title(o):

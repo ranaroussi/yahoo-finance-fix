@@ -90,9 +90,9 @@ Note: yahoo finance datetimes are received as UTC.
     # show splits
     msft.splits
 
-    # show financials
-    msft.financials
-    msft.quarterly_financials
+    # show income statement
+    msft.income_statement
+    msft.quarterly_income_statement
 
     # show major holders
     msft.major_holders
@@ -104,9 +104,9 @@ Note: yahoo finance datetimes are received as UTC.
     msft.balance_sheet
     msft.quarterly_balance_sheet
 
-    # show cashflow
-    msft.cashflow
-    msft.quarterly_cashflow
+    # show cash flow statement
+    msft.cash_flow_statement
+    msft.quarterly_cash_flow_statement
 
     # show earnings
     msft.earnings
@@ -132,6 +132,18 @@ Note: yahoo finance datetimes are received as UTC.
     opt = msft.option_chain('YYYY-MM-DD')
     # data available via: opt.calls, opt.puts
 
+    # get analyst recommendation trends (count of analysts recommending strong buy, buy, hold, sell, strong sell over the last few months)
+    msft.current_recommendations
+
+    # get analyst price targets (share price low estimate, current price, mean estimate, high estimate and number of analysts providing estimates)
+    msft.analyst_price_target
+
+    # get analyst revenue forecasts
+    msft.revenue_forecasts
+    
+    # get analyst earnings forecasts
+    msft.earnings_forecasts
+
 If you want to use a proxy server for downloading data, use:
 
 .. code:: python
@@ -145,7 +157,7 @@ If you want to use a proxy server for downloading data, use:
     msft.get_dividends(proxy="PROXY_SERVER")
     msft.get_splits(proxy="PROXY_SERVER")
     msft.get_balance_sheet(proxy="PROXY_SERVER")
-    msft.get_cashflow(proxy="PROXY_SERVER")
+    msft.get_cash_flow_statement(proxy="PROXY_SERVER")
     msft.option_chain(..., proxy="PROXY_SERVER")
     ...
 

@@ -1,5 +1,9 @@
 Change Log
 ===========
+0.1.64
+------
+- Updated the way in which the annual financial data is pieced together (income statement, balance sheet and cash flow statement) this now more accurately reflects what is presented in Yahoo Finance.
+- Added functionality to enable users to pull in detail from the Yahoo Finance Analysis page.
 
 0.1.63
 ------

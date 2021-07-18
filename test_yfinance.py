@@ -41,13 +41,17 @@ class TestTicker(unittest.TestCase):
             ticker.recommendations
             ticker.earnings
             ticker.quarterly_earnings
-            ticker.financials
-            ticker.quarterly_financials
+            ticker.income_statement
+            ticker.quarterly_income_statement
             ticker.balance_sheet
             ticker.quarterly_balance_sheet
-            ticker.cashflow
-            ticker.quarterly_cashflow
+            ticker.cash_flow_statement
+            ticker.quarterly_cash_flow_statement
             ticker.sustainability
+            ticker.current_recommendations
+            ticker.analyst_price_target
+            ticker.revenue_forecasts
+            ticker.earnings_forecasts
             ticker.options
 
     def test_holders(self):

@@ -159,40 +159,48 @@ class Ticker(TickerBase):
         return self.get_earnings(freq='quarterly')
 
     @property
-    def financials(self):
-        return self.get_financials()
+    def income_statement(self):
+        return self.get_income_statement()
 
     @property
-    def quarterly_financials(self):
-        return self.get_financials(freq='quarterly')
+    def quarterly_income_statement(self):
+        return self.get_quarterly_income_statement()
 
     @property
     def balance_sheet(self):
-        return self.get_balancesheet()
+        return self.get_balance_sheet()
 
     @property
     def quarterly_balance_sheet(self):
-        return self.get_balancesheet(freq='quarterly')
+        return self.get_quarterly_balance_sheet()
 
     @property
-    def balancesheet(self):
-        return self.get_balancesheet()
+    def cash_flow_statement(self):
+        return self.get_cash_flow_statement()
 
     @property
-    def quarterly_balancesheet(self):
-        return self.get_balancesheet(freq='quarterly')
-
-    @property
-    def cashflow(self):
-        return self.get_cashflow()
-
-    @property
-    def quarterly_cashflow(self):
-        return self.get_cashflow(freq='quarterly')
+    def quarterly_cash_flow_statement(self):
+        return self.get_quarterly_cash_flow_statement()
 
     @property
     def sustainability(self):
         return self.get_sustainability()
+
+    @property
+    def current_recommendations(self):
+        return self.get_current_recommendations()
+
+    @property
+    def analyst_price_target(self):
+        return self.get_analyst_price_target()
+
+    @property
+    def revenue_forecasts(self):
+        return self.get_rev_forecast()
+
+    @property
+    def earnings_forecasts(self):
+        return self.get_earnings_forecast()
 
     @property
     def options(self):
