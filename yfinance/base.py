@@ -381,6 +381,12 @@ class TickerBase():
         except Exception:
             pass
 
+        try:
+            self._info['preMarketPrice'] = data.get('price', {}).get(
+                'preMarketPrice', self._info.get('preMarketPrice', None))
+        except Exception:
+            pass
+
         self._info['logo_url'] = ""
         try:
             domain = self._info['website'].split(
